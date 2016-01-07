@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+    <aop:aspectj-autoproxy />
+	<bean id="cacheClient" class="net.spy.memcached.spring.MemcachedClientFactoryBean">
+	    <property name="servers" value="localhost:11211"/>
+	    <property name="protocol" value="BINARY"/>
+   	</bean>
+    <bean id="memcachedCache" class="com.navin.ratelimit.cache.MemcachedCache">
+    	<property name="cacheClient" ref="cacheClient"></property>
+    	<property name="rateLimitExceededStrategy" value="#{T(com.navin.ratelimit.cache.RateLimitExceededStrategy).EXCEPTION}"/>
+    </bean>
+    <bean id="conflictResolver" class="com.navin.ratelimit.conflictresolution.ConflictResolver">
+    	<constructor-arg value="#{T(com.navin.ratelimit.conflictresolution.ConflictResolutionStrategy).PESSIMISTIC}"></constructor-arg>
+    </bean>
+    <bean id="rateLimitPointCut" class="com.navin.ratelimit.pointcut.RateLimitPointCut">
+    	<property name="rateLimitCacheStrategy" ref="memcachedCache"/>
+    	<property name="conflictResolver" ref="conflictResolver"></property>
+    </bean>
+    <aop:config>
+		<aop:aspect id="testAspect" ref="rateLimitPointCut"/>
+	</aop:config>
+	<bean id="sample" class="com.navin.ratelimit.cache.RateLimitSample"/>
+</beans>
