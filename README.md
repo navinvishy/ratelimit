@@ -37,7 +37,7 @@ what you need.
 are conflicting. The conflict resolver will resolve these conflicts by picking one and dropping the other. Which one is picked
 can be controlled by a choice of OPTIMISTIC and PESSIMISTIC conflict resolution strategies. The OPTIMISTIC strategy will pick 
 ```@RateLimit(duration=10, unit=TimeUnit.SECONDS, limit=5)``` and the PESSIMISTIC strategy will pick the other one.
-- There are two strategies for what to do when the rate limit is exceeded. One is the EXCEPTION strategy that simple throws an 
+- There are two strategies for what to do when the rate limit is exceeded. One is the EXCEPTION strategy that simply throws an 
 exception when the rate limit is exceeded. The other is a SYNC strategy that blocks until the interval expires and the method
 can proceed to execute.
 
